@@ -1,0 +1,17 @@
+MODULE main
+VAR
+	p: boolean;
+	q: boolean;
+ASSIGN
+	init(p):=FALSE;
+	init(q):=FALSE;
+
+	next(p):={TRUE,FALSE};
+	next(q):=case
+		p: TRUE;
+		TRUE:{TRUE,FALSE};
+	esac;
+
+--Il n'y a jamais p et q simultanément
+
+LTLSPEC G(p -> X F q) 

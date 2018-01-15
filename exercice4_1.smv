@@ -1,0 +1,10 @@
+MODULE main
+VAR
+	p: boolean;
+ASSIGN
+	init(p):=TRUE;
+	next(p):=TRUE;
+
+--Il y a toujours p
+
+LTLSPEC G p

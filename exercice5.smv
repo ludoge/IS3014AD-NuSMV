@@ -1,0 +1,52 @@
+--inspiré de http://disi.unitn.it/~agiordani/fm/L7/main.pdf et adapté au problème courant
+MODULE main
+VAR
+	--on définit leurs quatre entités et les quatre transitions possibles
+	lombric : {gauche,droite};
+	mille_patte : {gauche,droite};
+	sauterelle : {gauche,droite};
+	feuille : {gauche,droite};
+	move : {l, m, s};
+DEFINE
+	transporter_lombric := move=l;
+	transporter_mille_patte := move=m;
+	transporter_sauterelle := move=s;
+	--condition de "victoire"
+	objectif := (lombric=droite)&(sauterelle=droite)&(mille_patte=droite);
+ASSIGN
+	--tout le monde commence sur la rive gauche
+	init(lombric) := gauche;
+	init(mille_patte) := gauche;
+	init(sauterelle) := gauche;
+	init(feuille) := gauche;
+TRANS
+transporter_lombric ->
+	lombric=feuille &
+	next(lombric)!=lombric &
+	next(feuille)!=feuille &
+	next(mille_patte)=mille_patte &
+	next(sauterelle)=sauterelle
+&
+transporter_mille_patte ->
+	mille_patte=feuille &
+	next(mille_patte)!=mille_patte &
+	next(feuille)!=feuille &
+	next(sauterelle)=sauterelle &
+	next(lombric)=lombric
+&
+transporter_sauterelle ->
+	sauterelle=feuille &
+	next(sauterelle)!=sauterelle &
+	next(feuille)!=feuille &
+	next(mille_patte)=mille_patte &
+	next(lombric)=lombric
+&
+--conditions écrites un peu à la main, pour être plus propre on définirait une condition de poids total
+!(transporter_lombric&transporter_sauterelle)
+&
+!(transporter_lombric&transporter_mille_patte)
+--la feuille ne bouge pas toute seule
+&
+(transporter_lombric|transporter_mille_patte|transporter_sauterelle)
+
+CTLSPEC EF objectif

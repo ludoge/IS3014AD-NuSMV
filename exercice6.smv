@@ -1,0 +1,21 @@
+MODULE main
+VAR
+	phi: boolean;
+	psi: boolean;
+	rho: boolean;
+ASSIGN
+	init(phi):={TRUE,FALSE};
+	next(phi):={TRUE,FALSE};
+	init(psi):={TRUE,FALSE};
+	next(psi):={TRUE,FALSE};
+	init(rho):={TRUE,FALSE};
+	next(rho):={TRUE,FALSE};
+
+CTLSPEC (EF phi <-> EG phi);
+CTLSPEC (EF phi)|(EF psi) <-> EG (phi | psi)
+CTLSPEC (AF phi)|(AF psi) <-> AF (phi | psi)
+CTLSPEC (AF !psi) <-> ! (EG psi)
+CTLSPEC (EF !psi) <-> ! (AG psi)
+CTLSPEC A[psi U A[phi U rho]] <-> A[A[psi U phi] U rho]
+CTLSPEC TRUE <-> ((AG phi) -> (EG phi))
+CTLSPEC TRUE <-> ((EG phi) -> (AG phi))
