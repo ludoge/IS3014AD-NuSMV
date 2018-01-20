@@ -1,0 +1,41 @@
+MODULE main
+VAR
+	p0: 0..3;
+	p1: 0..3;
+	p2: 0..3;
+	p0Modifie: boolean;
+	p1Modifie: boolean;
+	p2Modifie: boolean;
+
+ASSIGN
+	next(p0):=case
+		p0=p2 & p0=3: 0;
+		p0=p2: p0 + 1;
+		TRUE: p0;
+	esac;
+	next(p1):=case
+		p1!=p0: p0;
+		TRUE: p1;
+	esac;
+	next(p2):=case
+		p2!=p1: p1;
+		TRUE: p2;
+	esac;
+	next(p0Modifie):= next(p0) != p0;
+	next(p1Modifie):= next(p1) != p1;
+	next(p2Modifie):= next(p2) != p2;
+
+
+--Le drapeaux changent de valeur infiniment souvent
+CTLSPEC AG AF p0Modifie
+CTLSPEC AG AF p1Modifie
+CTLSPEC AG AF p2Modifie
+
+--Au bout d'un moment, à chaque étape au moins un drapeau change
+CTLSPEC AF AG (p0Modifie | p1Modifie | p2Modifie)
+
+--Au bout d'un moment, à chaque étape au plus un drapeau change
+CTLSPEC AF AG ((p0Modifie -> (!p1Modifie & !p2Modifie)) & (p1Modifie -> (!p2Modifie & !p0Modifie)) & (p2Modifie -> (!p0Modifie & !p1Modifie)))
+
+--Au bout d'un moment, on a infiniment souvent toutes les valeurs identiques
+CTLSPEC AG AF (p0=p1 & p1=p2)

@@ -1,0 +1,61 @@
+MODULE main
+VAR
+	floor: 0..2; --Étage actuel
+	door: {open,close}; --État des portes de l'ascenseur
+	calls: array 0..2 of boolean; --Étages où l'ascenseur est appelé
+	demands: array 0..2 of boolean; --Étages demandés depuis l'ascenseur
+
+ASSIGN
+	-- Les portes de l'ascenseur s'ouvrent si est à un étage demandé ou appelé.
+	next(door):=case
+		door=open: close;
+		demands[floor]: open;
+		calls[floor]: open;
+		TRUE: close;
+	esac;
+	-- L'appel de l'étage actuel est effacé lorsque les portes s'ouvrent (l'appel reste en attente sinon).
+	next(calls[0]):=case
+		door=open & floor=0: FALSE;
+		calls[0]: TRUE;
+		TRUE: {TRUE,FALSE};
+	esac;
+	next(calls[1]):=case
+		door=open & floor=1: FALSE;
+		calls[1]: TRUE;
+		TRUE: {TRUE,FALSE};
+	esac;
+	next(calls[2]):=case
+		door=open & floor=2: FALSE;
+		calls[2]: TRUE;
+		TRUE: {TRUE,FALSE};
+	esac;
+	-- La demande de l'étage actuel est effacée lorsque les portes s'ouvrent (la demande reste en attente sinon).
+	next(demands[0]):=case
+		door=open & floor=0: FALSE;
+		demands[0]: TRUE;
+		TRUE: {TRUE,FALSE};
+	esac;
+	next(demands[1]):=case
+		door=open & floor=1: FALSE;
+		demands[1]: TRUE;
+		TRUE: {TRUE,FALSE};
+	esac;
+	next(demands[2]):=case
+		door=open & floor=2: FALSE;
+		demands[2]: TRUE;
+		TRUE: {TRUE,FALSE};
+	esac;
+	-- L'ascenseur se déplace lorsque les portes sont fermées, en privilégiant les demandes aux appels.
+	next(floor):=case
+		door=open: floor;
+		demands[floor]: floor;
+		(demands[0] & floor > 0) | (demands[1] & floor > 1): floor - 1;
+		(demands[2] & floor < 2) | (demands[1] & floor < 1): floor + 1;
+		calls[floor]: floor;
+		(calls[0] & floor > 0) | (calls[1] & floor > 1): floor - 1;
+		(calls[2] & floor < 2) | (calls[1] & floor < 1): floor + 1;
+		TRUE: floor;
+	esac;
+
+CTLSPEC AG (calls[0] -> AF (floor = 0 & door = open))
+CTLSPEC AG (demands[0] -> AF (floor = 0 & door = open))
