@@ -12,6 +12,6 @@ ASSIGN
 		TRUE:{TRUE,FALSE};
 	esac;
 
---Il n'y a jamais p et q simultanément
+--Après chaque occurrence de p il y a au moins une occurrence de q
 
 LTLSPEC G(p -> X F q) 

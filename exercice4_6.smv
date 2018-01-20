@@ -1,0 +1,24 @@
+MODULE main
+VAR
+	p: boolean;
+	q: boolean;
+	r: boolean;
+ASSIGN
+	init(p):=FALSE;
+	init(r):=FALSE;
+
+	next(p):=case
+		!r: FALSE;
+		TRUE: {TRUE,FALSE};
+	esac;
+	next(q):={TRUE,FALSE};
+	next(r):=case
+		q: TRUE;
+		TRUE: r;
+	esac;
+
+--Avant chaque occurrence de p il y a au moins une occurrence de q
+
+--Le booléen r garde en mémoire si on est déjà passé en q
+
+LTLSPEC !(!q U p)

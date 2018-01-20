@@ -1,0 +1,26 @@
+MODULE main
+VAR
+	p: boolean;
+	q: boolean;
+	r: boolean;
+ASSIGN
+	init(p):=TRUE;
+	init(q):=FALSE;
+	init(r):=FALSE;
+
+	next(p):=case
+		r: {TRUE,FALSE};
+		TRUE: FALSE;
+	esac;
+	next(q):={TRUE,FALSE};
+	next(r):=case
+		p: FALSE;
+		q: TRUE;
+		TRUE: r;
+	esac;
+
+--Entre chaque paire d’occurrence de p il y a au moins une occurrence de q
+
+--Le booléen r indique une occurrence de q a été rencontrée depuis la dernière occurence de p
+
+LTLSPEC p -> X(G !p | (F p & !p U q))

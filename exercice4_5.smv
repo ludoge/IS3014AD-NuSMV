@@ -1,0 +1,37 @@
+MODULE main
+VAR
+	p1: boolean;
+	p2: boolean;
+	q1: boolean;
+	q2: boolean;
+ASSIGN
+	init(p1):=FALSE;
+	init(p2):=FALSE;
+	init(q1):=FALSE;
+	init(q2):=FALSE;
+
+	next(p1):=TRUE;
+	next(p2):=case
+		!p1: {TRUE,FALSE};
+		TRUE: p2;
+	esac;
+	next(q1):=case
+		!p1: TRUE;
+		p2: q2;
+		TRUE: {TRUE,FALSE};
+	esac;
+	next(q2):=case
+		!p1: FALSE;
+		p2: q1;
+		TRUE: {TRUE,FALSE};
+	esac;
+
+--S’il y a une infinité de p1 et une infinité de p2 alors toute occurrence de q1 est suivie d’une
+--occurrence de q2
+
+--Pour cet exemple, à partir d'un état initial où p1=FALSE et p2=FALSE, on se retrouve soit dans
+--la sitation où p1 et p2 sont fixés définitivement à TRUE et FALSE (dans ce cas q1 et q2 sont 
+--libres), soit on se retrouve dans la situation où p1 et p2 sont définitivement fixés à TRUE et 
+--TRUE (dans ce cas q1 et q2 alterne leurs valeur entre TRUE-FALSE et FALSE-TRUE)
+
+LTLSPEC ((G F p1) & (G F p2)) -> G (q1 -> X q2)
