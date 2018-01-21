@@ -1,0 +1,163 @@
+-- Utilise la modélisation proposée par https://interstices.info/jcms/c_42150/resoudre-le-mini-rubik-s-cube
+
+MODULE main
+
+VAR
+
+	-- Un cube est représenté par 7 coins (numérotés de 1 à 7) chacun dans trois positions différentes (numérotées de 1 à 3)
+	corners: array 1..7 of 1..7;
+	orientation: array 1..7 of 1..3;
+	move: {right,back,down};
+
+DEFINE
+
+	-- Mouvements possibles
+	Right := move = right;
+	Back := move = back;
+	Down := move = down;
+
+	-- Attribution initiale des couleurs (à compléter selon le cube initial)
+	-- Ici nous utilisons le format proposé dans le lien plus haut, en prenant comme situation initiale celle proposée dans la figure 1 du TD, en prenant comme coin 0 le coin blanc-vert-orange, avec la face blanche vers le haut.
+	-- Correspondance couleurs
+	-- blanc = 0
+	-- rouge = 1
+	-- orange = 2
+	-- jaune = 3
+	-- vert = 4
+	-- bleu = 5
+	Colors := [
+		[0,4,2],
+		[2,4,3],
+		[5,3,1],
+		[1,0,5],
+		[5,2,3],
+		[4,1,3],
+		[2,5,0],
+		[1,4,0]
+	];
+
+	-- Couleurs actuelles des faces (dans l'ordre Up-Font-Left-Right-Back-Down, puis par ordre croissant d'identifiant des coins)
+	SideColors := [
+		[Colors[0][0], Colors[corners[1]][(orientation[1] - 1) mod 3], Colors[corners[4]][(orientation[4] - 1) mod 3], Colors[corners[7]][(orientation[7] - 1) mod 3]],
+		[Colors[0][1], Colors[corners[1]][(orientation[1] + 1) mod 3], Colors[corners[2]][orientation[2] mod 3], Colors[corners[3]][(orientation[3] + 1) mod 3]],
+		[Colors[0][2], Colors[corners[3]][orientation[3] mod 3], Colors[corners[6]][(orientation[6] + 1) mod 3], Colors[corners[7]][orientation[7] mod 3]],
+		[Colors[corners[1]][orientation[1] mod 3], Colors[corners[2]][(orientation[2] + 1) mod 3], Colors[corners[4]][(orientation[4] + 1) mod 3], Colors[corners[5]][orientation[5] mod 3]],
+		[Colors[corners[4]][orientation[4] mod 3], Colors[corners[5]][(orientation[5] + 1) mod 3], Colors[corners[6]][orientation[6] mod 3], Colors[corners[7]][(orientation[7] + 1) mod 3]],
+		[Colors[corners[2]][(orientation[2] - 1) mod 3], Colors[corners[3]][(orientation[3] - 1) mod 3], Colors[corners[5]][(orientation[5] - 1) mod 3], Colors[corners[6]][(orientation[6] - 1) mod 3]]
+	];
+
+	-- Faces complètes
+	SideUp := SideColors[0][0] = SideColors[0][1] & SideColors[0][1] = SideColors[0][2] & SideColors[0][2] = SideColors[0][3];
+	SideFront := SideColors[1][0] = SideColors[1][1] & SideColors[1][1] = SideColors[1][2] & SideColors[1][2] = SideColors[1][3];
+	SideLeft := SideColors[2][0] = SideColors[2][1] & SideColors[2][1] = SideColors[2][2] & SideColors[2][2] = SideColors[2][3];
+	SideRight := SideColors[3][0] = SideColors[3][1] & SideColors[3][1] = SideColors[3][2] & SideColors[3][2] = SideColors[3][3];
+	SideBack := SideColors[4][0] = SideColors[4][1] & SideColors[4][1] = SideColors[4][2] & SideColors[4][2] = SideColors[4][3];
+	SideDown := SideColors[5][0] = SideColors[5][1] & SideColors[5][1] = SideColors[5][2] & SideColors[5][2] = SideColors[5][3];
+
+	-- Cube résolu
+	success := SideUp & SideFront & SideLeft & SideRight & SideBack & SideDown;
+
+ASSIGN
+
+	-- Cube initial
+	init(corners[1]) := 1;
+	init(corners[2]) := 2;
+	init(corners[3]) := 3;
+	init(corners[4]) := 4;
+	init(corners[5]) := 5;
+	init(corners[6]) := 6;
+	init(corners[7]) := 7;
+	init(orientation[1]) := 1;
+	init(orientation[2]) := 1;
+	init(orientation[3]) := 1;
+	init(orientation[4]) := 1;
+	init(orientation[5]) := 1;
+	init(orientation[6]) := 1;
+	init(orientation[7]) := 1;
+
+	next(corners[1]):=case
+		Right: corners[2];
+		Back: corners[1];
+		Down: corners[1];
+	esac;
+
+	next(corners[2]):=case
+		Right: corners[5];
+		Back: corners[2];
+		Down: corners[3];
+	esac;
+
+	next(corners[3]):=case
+		Right: corners[3];
+		Back: corners[3];
+		Down: corners[6];
+	esac;
+
+	next(corners[4]):=case
+		Right: corners[1];
+		Back: corners[5];
+		Down: corners[4];
+	esac;
+
+	next(corners[5]):=case
+		Right: corners[4];
+		Back: corners[6];
+		Down: corners[2];
+	esac;
+
+	next(corners[6]):=case
+		Right: corners[6];
+		Back: corners[7];
+		Down: corners[5];
+	esac;
+
+	next(corners[7]):=case
+		Right: corners[7];
+		Back: corners[4];
+		Down: corners[7];
+	esac;
+
+	next(orientation[1]):=case
+		Right: orientation[2] mod 3 + 1;
+		Back: orientation[1];
+		Down: orientation[1];
+	esac;
+
+	next(orientation[2]):=case
+		Right: (orientation[5] + 1) mod 3 + 1;
+		Back: orientation[2];
+		Down: orientation[3];
+	esac;
+
+	next(orientation[3]):=case
+		Right: orientation[3];
+		Back: orientation[3];
+		Down: orientation[6];
+	esac;
+
+	next(orientation[4]):=case
+		Right: (orientation[1] + 1) mod 3 + 1;
+		Back: orientation[5] mod 3 + 1;
+		Down: orientation[4];
+	esac;
+
+	next(orientation[5]):=case
+		Right: orientation[4] mod 3 + 1;
+		Back: (orientation[6] + 1) mod 3 + 1;
+		Down: orientation[2];
+	esac;
+
+	next(orientation[6]):=case
+		Right: orientation[6];
+		Back: orientation[7] mod 3 + 1;
+		Down: orientation[5];
+	esac;
+
+	next(orientation[7]):=case
+		Right: orientation[7];
+		Back: (orientation[4] + 1) mod 3 + 1;
+		Down: orientation[7];
+	esac;
+
+					
+CTLSPEC AG !success
