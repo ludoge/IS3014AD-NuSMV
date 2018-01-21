@@ -64,7 +64,7 @@ ASSIGN
 		next(floor)<floor: down;
 		TRUE: dir;
 	esac;
-	-- L'ascenseur se déplace lorsque les portes sont fermées, en privilégiant les étages situés dans direction courante de l'ascenseur.
+	-- L'ascenseur se déplace lorsque les portes sont fermées, en privilégiant les étages situés dans direction courante de l'ascenseur. Si l'ascenseur n'est pas demandé ou appelé, il descend jusqu'en bas.
 	next(floor):=case
 		door=open: floor;
 		(calls[floor] | demands[floor]): floor;
@@ -72,9 +72,11 @@ ASSIGN
 		dir = up & ((calls[2] & floor < 2) | (calls[1] & floor < 1) | (demands[2] & floor < 2) | (demands[1] & floor < 1)): floor + 1;
 		(calls[0] & floor > 0) | (calls[1] & floor > 1) | (demands[0] & floor > 0) | (demands[1] & floor > 1): floor - 1;
 		(calls[2] & floor < 2) | (calls[1] & floor < 1) | (demands[2] & floor < 2) | (demands[1] & floor < 1): floor + 1;
+		!calls[0] & !calls[1] & !calls[2] & !demands[0] & !demands[1] & !demands[2] & floor>0: floor - 1;
 		TRUE: floor;
 	esac;
 
 CTLSPEC AG (calls[0] -> AF (floor = 0 & door = open))
 CTLSPEC AG (calls[1] -> AF (floor = 1 & door = open))
 CTLSPEC AG (calls[2] -> AF (floor = 2 & door = open))
+CTLSPEC AG (EF AG (!demands[0] & !demands[1] & !demands[2] & !calls[0] & !calls[1] & !calls[2]) -> EF AG floor = 0)

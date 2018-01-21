@@ -13,9 +13,10 @@ ASSIGN
 	init(demands[0]):=FALSE;
 	init(demands[1]):=FALSE;
 	init(demands[2]):=FALSE;
-	-- Les portes de l'ascenseur s'ouvrent si on est à un étage demandé ou appelé et que l'ascenseur s'est arrêté.
+	-- Les portes de l'ascenseur s'ouvrent si on est à un étage demandé ou appelé et que l'ascenseur s'est arrêté, sauf si l'étage de direction est appelé ou demandé.
 	next(door):=case
 		door=open: close;
+		(calls[2] | demands[2]) & floor != 2: close;
 		calls[floor] & next(floor)=floor: open;
 		demands[floor] & next(floor)=floor: open;
 		TRUE: close;
@@ -64,9 +65,11 @@ ASSIGN
 		next(floor)<floor: down;
 		TRUE: dir;
 	esac;
-	-- L'ascenseur se déplace lorsque les portes sont fermées, en privilégiant les étages situés dans direction courante de l'ascenseur.
+	-- L'ascenseur se déplace lorsque les portes sont fermées, en privilégiant les étages situés dans direction courante de l'ascenseur. Il donne cependant la priorité à l'étage de direction avant cela.
 	next(floor):=case
 		door=open: floor;
+		(calls[2] | demands[2]) & floor < 2: floor + 1;
+		(calls[2] | demands[2]) & floor = 2: 2;
 		(calls[floor] | demands[floor]): floor;
 		dir = down & ((calls[0] & floor > 0) | (calls[1] & floor > 1) | (demands[0] & floor > 0) | (demands[1] & floor > 1)): floor - 1;
 		dir = up & ((calls[2] & floor < 2) | (calls[1] & floor < 1) | (demands[2] & floor < 2) | (demands[1] & floor < 1)): floor + 1;
@@ -78,3 +81,4 @@ ASSIGN
 CTLSPEC AG (calls[0] -> AF (floor = 0 & door = open))
 CTLSPEC AG (calls[1] -> AF (floor = 1 & door = open))
 CTLSPEC AG (calls[2] -> AF (floor = 2 & door = open))
+CTLSPEC AG ((demands[2] | calls[2]) -> AX A[door = close U (floor = 2 & door = open)])
